@@ -1,0 +1,13 @@
+{
+  "competition_id": 43,
+  "season_id": 106,
+  "competition": "FIFA World Cup 2022",
+  "source": "StatsBomb Open Data (https://github.com/statsbomb/open-data)",
+  "matches": [
+    {"match_id": 3869685, "date": "2022-12-18", "stage": "Final", "home": "Argentina", "away": "France", "score": "3-3", "note": "went to penalties"},
+    {"match_id": 3857300, "date": "2022-11-22", "stage": "Group Stage", "home": "Argentina", "away": "Saudi Arabia", "score": "1-2", "note": "xG 2.49 vs 0.15"},
+    {"match_id": 3857284, "date": "2022-11-23", "stage": "Group Stage", "home": "Germany", "away": "Japan", "score": "1-2", "note": "xG 2.77 vs 1.25"},
+    {"match_id": 3869354, "date": "2022-12-10", "stage": "Quarter-finals", "home": "England", "away": "France", "score": "1-2", "note": "xG 2.35 vs 0.84"},
+    {"match_id": 3869220, "date": "2022-12-06", "stage": "Round of 16", "home": "Morocco", "away": "Spain", "score": "0-0", "note": "went to penalties; low xG"}
+  ]
+}

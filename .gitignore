@@ -1,0 +1,21 @@
+.env
+.env.*
+!.env.example
+
+.venv/
+__pycache__/
+.pytest_cache/
+*.pyc
+
+node_modules/
+.next/
+dist/
+build/
+
+data/raw/
+.DS_Store
+
+data/models/
+
+# personal application notes (email draft, resume changes): kept local, not published
+docs/application/

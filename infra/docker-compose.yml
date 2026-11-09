@@ -1,0 +1,61 @@
+# Database only (development):   docker compose -f infra/docker-compose.yml up -d
+# Whole stack (db + api + web):  docker compose -f infra/docker-compose.yml --profile full up --build
+#   web http://localhost:3000   api http://localhost:8000/docs   (set OPENAI_API_KEY or LLM_API_KEY in your shell to enable the analyst)
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    container_name: touchline-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: touchline
+      POSTGRES_PASSWORD: local_dev_password
+      POSTGRES_DB: touchline
+    ports:
+      - "5433:5432"  # 5433 on the host: a native Postgres often owns 5432
+    volumes:
+      - touchline_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U touchline -d touchline"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api:
+    profiles: ["full"]
+    build:
+      context: ..
+      dockerfile: apps/api/Dockerfile
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql+psycopg://touchline:local_dev_password@db:5432/touchline
+      CORS_ORIGINS: http://localhost:3000
+      LLM_PROVIDER: ${LLM_PROVIDER:-openai}
+      LLM_API_KEY: ${LLM_API_KEY:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      LLM_MODEL: ${LLM_MODEL:-}
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://localhost:8000/health/ready').status == 200 else 1)"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 60s
+
+  web:
+    profiles: ["full"]
+    build:
+      context: ..
+      dockerfile: apps/web/Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:8000
+    depends_on:
+      api:
+        condition: service_healthy
+    ports:
+      - "3000:3000"
+
+volumes:
+  touchline_data:

@@ -36,7 +36,8 @@ Rules:
 4. Be economical. Typically: match summary, shot map, then one or two targeted checks. Do not call tools whose results you will not use.
 5. xG and counts exclude penalty-shootout kicks. A single match is a small sample; say so when it matters.
 6. The data has no tracking: you cannot state formations, off-ball runs or player speed. defenders_in_cone is a lower bound on visible defenders and only meaningful when cone_visible is true. If a question needs data you do not have, say so under limitations instead of guessing, and make no finding about it.
-7. When you have what you need, call submit_answer exactly once. Do not write the final answer as plain text."""
+7. Never count or add up rows yourself: quote the totals and counts the tools return (for example `counts` in get_shot_map). If the number you need is not returned, say so under limitations.
+8. When you have what you need, call submit_answer exactly once. Do not write the final answer as plain text."""
 
 
 class Finding(BaseModel):

@@ -163,6 +163,21 @@ def test_shot_map_filters_and_truncation(db):
     assert ft.get_shot_map(db, ft.ShotMapArgs(match_id=FINAL, include_shootout=True))["total_matching"] == 38
 
 
+def test_shot_map_returns_totals_so_the_model_does_not_count_rows(db):
+    """A live eval showed the model miscounting 26 rows by one. The tool now counts, over all matching shots."""
+    r = ft.get_shot_map(db, ft.ShotMapArgs(match_id=3857284, team="Germany", limit=5))  # truncated list, counts still cover everything
+    c = r["counts"]
+    shots = [s for s in analytics.shot_map(db, 3857284) if s["team"] == "Germany"]
+    visible = [s for s in shots if s["cone_visible"]]
+    assert r["truncated"] and len(r["shots"]) == 5
+    assert c["shots"] == len(shots) == 26 and c["goals"] == sum(s["outcome"] == "Goal" for s in shots)
+    assert c["lane_fully_visible"] == len(visible) == 19
+    assert c["lane_visible_and_no_defender"] == 11  # the figure the eval expects: visible lane AND zero visible defenders
+    assert c["lane_visible_and_defender_present"] == c["lane_fully_visible"] - 11
+    assert c["with_360_frame"] >= c["lane_fully_visible"]
+    assert ft.collect(r)[1].count(11.0) >= 1  # and the figure is in the numbers the validator can check against
+
+
 def test_player_lookup_is_accent_insensitive_and_reports_ambiguity(db):
     mb = ft.get_player_stats(db, ft.PlayerStatsArgs(match_id=FINAL, player="mbappe"))
     assert mb["total_matching"] == 1 and mb["players"][0]["goals"] == 3 and mb["players"][0]["minutes"] > 100

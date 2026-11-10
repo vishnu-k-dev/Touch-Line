@@ -127,10 +127,19 @@ def get_shot_map(db: Session, a: ShotMapArgs) -> dict:
         shots = [s for s in shots if s["outcome"].casefold() == a.outcome.casefold()]
     keep = ("event_id", "team", "player", "minute", "xg", "outcome", "shot_type", "body_part", "x", "y",
             "defenders_in_cone", "cone_visible", "nearest_defender")
+    lane_visible = [s for s in shots if s["cone_visible"]]
+    counts = {  # computed here over ALL matching shots, so the model quotes totals instead of tallying rows (it miscounts)
+        "shots": len(shots),
+        "goals": sum(s["outcome"] == "Goal" for s in shots),
+        "with_360_frame": sum(s["cone_visible"] is not None for s in shots),
+        "lane_fully_visible": len(lane_visible),
+        "lane_visible_and_no_defender": sum(s["defenders_in_cone"] == 0 for s in lane_visible),
+        "lane_visible_and_defender_present": sum(s["defenders_in_cone"] > 0 for s in lane_visible),
+    }
     return {
-        "match_id": a.match_id, "total_matching": len(shots), "truncated": len(shots) > a.limit,
+        "match_id": a.match_id, "counts": counts, "total_matching": len(shots), "truncated": len(shots) > a.limit,
         "shots": [{k: (round(s[k], 3) if k == "xg" and s[k] is not None else s[k]) for k in keep} for s in shots[: a.limit]],
-        "note": "defenders_in_cone counts VISIBLE defenders in the shooting lane from the 360 freeze-frame: a lower bound, "
+        "note": "Quote totals from `counts`; do not tally the rows yourself. defenders_in_cone counts VISIBLE defenders in the shooting lane from the 360 freeze-frame: a lower bound, "
                 "only meaningful when cone_visible is true; null means no freeze-frame.",
     }
 
@@ -214,7 +223,7 @@ class Tool:
 TOOLS: dict[str, Tool] = {t.name: t for t in [
     Tool("list_matches", "List the matches in the database (id, date, stage, teams, score). Use first to find a match id.", ListMatchesArgs, list_matches),
     Tool("get_match_summary", "Team-level stats for one match: goals, shots, shots on target, xG, non-penalty xG, passing, pass share, pressures, PPDA, shootout result. Includes metric definitions.", MatchArgs, get_match_summary),
-    Tool("get_shot_map", "Every shot in a match (or filtered by team, player or outcome) with xG, outcome, location and event_id evidence. Includes 360 freeze-frame context where available.", ShotMapArgs, get_shot_map),
+    Tool("get_shot_map", "Every shot in a match (or filtered by team, player or outcome) with xG, outcome, location and event_id evidence. Includes 360 freeze-frame context where available, and a `counts` object with ready-made totals (shots, goals, shooting-lane counts): use it instead of counting rows.", ShotMapArgs, get_shot_map),
     Tool("get_player_stats", "Per-player stats for one match: shots, goals, xG, passes, key passes, assists, pressures, tackles, interceptions, minutes played. Sorted by xG.", PlayerStatsArgs, get_player_stats),
     Tool("compare_players", "Side-by-side stats for two players in the same match.", ComparePlayersArgs, compare_players),
     Tool("get_team_events", "A team's event counts by type for a match, or the events of one type (with minute, player, event_id).", TeamEventsArgs, get_team_events),

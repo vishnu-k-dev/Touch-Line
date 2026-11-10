@@ -29,8 +29,10 @@ export function Facts() {
         <p className="font-display text-lg font-bold uppercase tracking-wide">The analyst itself</p>
         {ANALYST_EVAL ? (
           <p className="mt-1 text-muted">
-            On nine golden questions ({ANALYST_EVAL.model}): {Math.round(ANALYST_EVAL.passRate * 100)}% passed, {Math.round(ANALYST_EVAL.grounded * 100)}% fully grounded, about $
-            {ANALYST_EVAL.costPerQuestionUsd.toFixed(3)} per question.
+            On nine golden questions ({ANALYST_EVAL.model}, live): {Math.round(ANALYST_EVAL.passRate * 100)}% passed and {Math.round(ANALYST_EVAL.grounded * 100)}% of findings were
+            verified, at a median {ANALYST_EVAL.medianLatencyS} s and about ${ANALYST_EVAL.costPerQuestionUsd.toFixed(3)} per question. The first run scored{" "}
+            {Math.round(ANALYST_EVAL.firstRunPassRate * 100)}%: the one miss was a miscounted tally, fixed by making the tool return the totals. Nine questions is a smoke test, not a
+            benchmark.
           </p>
         ) : (
           <p className="mt-1 text-muted">

@@ -8,7 +8,8 @@ test.describe("how it works", () => {
       await expect(page.getByRole("heading", { name: h })).toBeVisible();
     }
     await expect(page.getByText("Event data only.")).toBeVisible();
-    await expect(page.getByText(/isn.t published yet/)).toBeVisible(); // honest about the unmeasured analyst accuracy
+    await expect(page.getByText(/On nine golden questions/)).toBeVisible();
+    await expect(page.getByText(/Nine questions is a smoke test, not a benchmark/)).toBeVisible(); // honest about how little it proves
   });
 
   test("hovering a player in the starting XI shows what that piece does", async ({ page }) => {

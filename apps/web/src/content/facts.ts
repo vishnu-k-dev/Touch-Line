@@ -7,7 +7,7 @@ export const FACTS = {
   events: 19442,
   documents: 156,
   tools: 8,
-  apiTests: 129,
+  apiTests: 130,
   unitTests: 15,
   e2eTests: 30,
   retrievalRecall: 1.0,
@@ -21,7 +21,14 @@ export const FACTS = {
 };
 
 /**
- * Headline accuracy of the analyst against its golden questions. null until the eval has been run against a live model:
+ * Headline accuracy of the analyst against its nine golden questions (docs/evals/ has both reports). null = not yet run:
  *   cd apps/api && python -m app.evals.agent_eval --out eval.json
  */
-export const ANALYST_EVAL: null | { model: string; passRate: number; grounded: number; costPerQuestionUsd: number } = null;
+export const ANALYST_EVAL: null | {
+  model: string;
+  passRate: number;
+  grounded: number;
+  firstRunPassRate: number;
+  medianLatencyS: number;
+  costPerQuestionUsd: number;
+} = { model: "gpt-5.6-luna", passRate: 1, grounded: 1, firstRunPassRate: 8 / 9, medianLatencyS: 5, costPerQuestionUsd: 0.001 };

@@ -150,7 +150,8 @@ Configuration is in `.env.example`.
 
 | Check | Result |
 |---|---|
-| API tests (pytest) | 129 passing: metrics recounted from raw JSON, official scores and known facts; retrieval eval; agent loop; OpenAI and Anthropic providers; limits; chat history; caching; bootstrap |
+| Live analyst eval (`gpt-5.6-luna`, 9 golden questions) | Run 1: 8/9. After making the tool count: 9/9, all findings verified, 5 s median, about $0.001 per question. Single runs on a small set ([reports](docs/evals)) |
+| API tests (pytest) | 130 passing: metrics recounted from raw JSON, official scores and known facts; retrieval eval; agent loop; OpenAI and Anthropic providers; limits; chat history; caching; bootstrap |
 | Web tests | 15 unit (Vitest) + 30 end-to-end (Playwright, real API, only the LLM mocked, run against a production build) covering the hero, tabs, red heatmaps, the About page, analyst states, history restore and a mobile layout regression |
 | Mutation checks | Done by hand for each module (wrong zone constant, ignored filter, dropped substitutions, disabled validator, no rate limit, cache without a lock, ...): every one made tests fail, and two weak tests were found and strengthened this way |
 | Schema drift | `alembic check` clean; CI fails if models and migrations disagree |
@@ -182,11 +183,17 @@ Proven here: everything in "What I measured".
 
 **Not proven yet, stated plainly:**
 
-- **The analyst's answer quality and cost per question are unmeasured.** The loop, validator, tools, API, history and UI are
-  tested with a scripted model and a mocked client, and the OpenAI request shape was corrected after a real API call rejected
-  it (reasoning effort is not allowed with function tools on Chat Completions, so the default effort is `none`). But no full
-  run of the eval against a live model has been recorded. Run it with a key before quoting any accuracy or cost number. The
-  cost shown in `docs/architecture.md` is an estimate from prompt sizes.
+- **The analyst has been measured, but only lightly.** On the nine golden questions with `gpt-5.6-luna` (live), the first run
+  passed 8 of 9 and the rerun passed 9 of 9, with every finding verified, a median of 5 s and about $0.001 per question
+  (about $0.008 for the whole set). The one miss was a miscounted tally (10 instead of 11); the validator did not catch it
+  because 10 appears somewhere in the tool output. The fix was to make the tool return the totals and tell the model to
+  quote them, so **the 9 of 9 comes after a fix informed by the failing case: it is a smoke test, not a held-out benchmark**.
+  Each run is a single sample of a non-deterministic model. Both reports are in [docs/evals](docs/evals). Other models have not
+  been compared yet. The OpenAI request shape was also corrected after a real API call rejected it (reasoning effort is not
+  allowed with function tools on Chat Completions, so the default effort is `none`).
+- **The VAR check is weaker than it sounds for counts.** It guarantees a quoted number appears in (or is a sum or difference of)
+  the tool results, which stops invented numbers, but it cannot tell a right count from a wrong one that happens to appear.
+  That is why counting is done inside the tools.
 - **It is not deployed.** Dockerfiles, `render.yaml`, `vercel.json` and CI (`.github/workflows/ci.yml`) are written, and the
   Docker stack was run locally; the CI workflow has not run on GitHub and the Render/Vercel steps have not been executed.
 - **Event data only**: no player tracking, no video-derived formations, and it says so. Expected threat and VAEP are

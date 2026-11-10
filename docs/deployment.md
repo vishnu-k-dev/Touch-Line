@@ -80,7 +80,7 @@ Each question and its full answer are stored in Postgres (`chat_turns`), keyed b
 2. Ask the analyst two or three questions yourself, then run the eval with the same key:
    `cd apps/api && python -m app.evals.agent_eval --out eval.json` (compare with `--model gpt-5.6-terra`).
 3. Put the numbers in `apps/web/src/content/facts.ts` (`ANALYST_EVAL`) so the About page shows them, and in the README.
-   The eval has not been run against a live model in this repository yet.
+   The first live run (`gpt-5.6-luna`) is already recorded in `docs/evals/`: 8 of 9, then 9 of 9 after the counting fix.
 
 ## Operations
 

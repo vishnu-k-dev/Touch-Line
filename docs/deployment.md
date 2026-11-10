@@ -24,6 +24,13 @@ are the ones the local Docker stack runs.
    health check (`/health/ready`) turns green when it is done.
 4. Note the API URL, e.g. `https://touchline-api.onrender.com`.
 
+**Memory.** The first boot builds the search index (156 documents). Measured in Docker with a hard 512 MB limit: peak
+about 401 MiB (sampled every 3 s) and about 105 MiB once serving, 278 MiB after 40 concurrent requests; no OOM kill. That
+fits Render's 512 MB free plan but with thin headroom (the first boot took about 4 minutes on a laptop, and the free plan
+sleeps when idle). If a deploy still reports "Out of memory", use the `1c-2g` plan in `render.yaml`. The first version of
+the index build ran out of memory on 512 MB; it now loads light event rows, fetches raw JSON only for shots, and embeds in
+batches of 16.
+
 `DATABASE_URL` is wired from the database automatically. Render hands out `postgresql://` URLs; the API rewrites them to
 `postgresql+psycopg://` (tested), so nothing to edit.
 

@@ -73,7 +73,12 @@ def _place(x: float, y: float) -> str:
 
 
 def sequence_docs(db: Session, m: Match) -> list[dict]:
-    events = list(db.scalars(select(Event).where(Event.match_id == m.id).order_by(Event.idx)))
+    # Light rows only (no raw_data): a match has ~4,000 events and their JSON is what made this step run out of memory on a
+    # 512 MB host. The raw JSON is fetched below for the shots alone.
+    events = db.execute(
+        select(Event.id, Event.idx, Event.type, Event.team_id, Event.player_id, Event.minute, Event.second, Event.possession)
+        .where(Event.match_id == m.id).order_by(Event.idx)
+    ).all()
     by_id = {e.id: e for e in events}
     by_possession = defaultdict(list)
     for e in events:
@@ -84,14 +89,17 @@ def sequence_docs(db: Session, m: Match) -> list[dict]:
     shots = db.scalars(
         select(Shot).where(Shot.match_id == m.id, Shot.is_shootout.is_(False)).order_by(Shot.period, Shot.minute, Shot.second)
     )
+    shots = list(shots)
+    shot_json = dict(db.execute(select(Event.id, Event.raw_data).where(Event.id.in_([s.event_id for s in shots]))).all())
     docs = []
     for s in shots:
         ev = by_id[s.event_id]
+        raw = shot_json[s.event_id]
         own = [e for e in by_possession[ev.possession] if e.team_id == s.team_id and e.idx < ev.idx]
         passes = sum(e.type == "Pass" for e in own)
         secs = (ev.minute * 60 + ev.second) - (own[0].minute * 60 + own[0].second) if own else 0
-        pattern = ev.raw_data["play_pattern"]["name"]
-        key = by_id.get(ev.raw_data["shot"].get("key_pass_id"))
+        pattern = raw["play_pattern"]["name"]
+        key = by_id.get(raw["shot"].get("key_pass_id"))
         dist = math.hypot(120 - s.x, 40 - s.y)
         took = {"Penalty": "took a penalty kick", "Free Kick": "took a direct free kick"}.get(s.shot_type, "had a shot")
         body = {"Head": "with a header", "Right Foot": "with the right foot", "Left Foot": "with the left foot"}.get(

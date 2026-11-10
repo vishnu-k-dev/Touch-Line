@@ -1,7 +1,7 @@
 # Build from the repository root:  docker build -f apps/api/Dockerfile -t touchline-api .
 FROM python:3.13-slim
 
-ENV PYTHONUNBUFFERED=1 PYTHONDONTWRITEBYTECODE=1 PIP_NO_CACHE_DIR=1 HF_HUB_DISABLE_SYMLINKS_WARNING=1
+ENV PYTHONUNBUFFERED=1 PYTHONDONTWRITEBYTECODE=1 PIP_NO_CACHE_DIR=1 HF_HUB_DISABLE_SYMLINKS_WARNING=1 MALLOC_ARENA_MAX=2
 # the code expects the repo layout: /app/apps/api (code) and /app/data (knowledge + sample list)
 WORKDIR /app/apps/api
 

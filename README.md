@@ -160,7 +160,7 @@ Configuration is in `.env.example`.
 | Minutes played | Each team sums to exactly 11 × match length in all 5 matches. Lineup position spells failed this check in the two extra-time matches, so minutes come from substitution events |
 | 360 shooting-lane count | A **lower bound** (11 of 25 blocked shots show 0 visible defenders); it still tracks xG (clear lane ≈ 0.18, 2+ visible defenders ≈ 0.05) |
 | Performance | A browser test run showed `/stats` taking 5 s under concurrent load; analytics are now cached with a per-key lock: 146 ms first call, 11 ms cached |
-| Docker | Both images build and run; the browser suite passes against the containers. API 345 MiB resident with the embedding model loaded |
+| Docker | Both images build and run; the browser suite passes against the containers. API 345 MiB resident with the embedding model loaded. First-boot index build peaks near 401 MiB under a hard 512 MB limit (no OOM); about 105 MiB once serving |
 
 ## The agent
 

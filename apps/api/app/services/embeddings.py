@@ -16,7 +16,8 @@ def _model() -> TextEmbedding:
 
 
 def embed_documents(texts: list[str]) -> list[list[float]]:
-    return [v.tolist() for v in _model().passage_embed(texts)]
+    # Small batches: the library's default (256) pads every document in one go, a large memory spike on a 512 MB host.
+    return [v.tolist() for v in _model().passage_embed(texts, batch_size=16)]
 
 
 def embed_query(text: str) -> list[float]:

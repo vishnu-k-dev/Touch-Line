@@ -60,10 +60,15 @@ export function MatchCentre() {
         Five matches from the 2022 World Cup. The ticket badge marks games where the side with more expected goals didn&apos;t win.
       </SectionTitle>
 
-      {matches.loading && <Note>Warming up…</Note>}
+      {matches.loading && (
+        <Note>
+          Warming up… The API runs on a free hosting plan that sleeps when idle, so the first load can take up to a minute. Nothing is broken: please be patient.
+        </Note>
+      )}
       {matches.error && (
         <Note bad>
-          Own goal: could not reach the API. {matches.error} Start it (<code>uvicorn app.main:app</code> in apps/api) and reload.
+          Own goal: could not reach the API. {matches.error} If the server was asleep (free hosting plan), wait a minute and reload. Running locally? Start it
+          (<code>uvicorn app.main:app</code> in apps/api).
         </Note>
       )}
 

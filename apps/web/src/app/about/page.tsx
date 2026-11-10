@@ -132,7 +132,7 @@ export default function About() {
               StatsBomb Open Data
             </a>
             , used under their terms with attribution. The embedding model is BAAI/bge-small-en-v1.5 (MIT). Built by Vishnu K. Source on{" "}
-            <a className="underline decoration-card decoration-2 underline-offset-2 hover:text-fg" href="https://github.com/vishnu-k-dev/touchline-ai" target="_blank" rel="noreferrer">
+            <a className="underline decoration-card decoration-2 underline-offset-2 hover:text-fg" href="https://github.com/vishnu-k-dev/Touch-Line" target="_blank" rel="noreferrer">
               GitHub
             </a>
             .

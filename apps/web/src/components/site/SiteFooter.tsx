@@ -17,6 +17,9 @@ export function SiteFooter() {
             , FIFA World Cup 2022 sample. Built on event data only: no player tracking, no video-derived formations. The 360 shooting-lane count is a lower bound. Every
             AI claim cites its tool call and match events; what can&apos;t be checked is flagged, not hidden.
           </p>
+          <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted">
+            Hosting note: the API runs on a free plan and goes to sleep after a period of inactivity. If the first load or the first question is slow, it is waking up, not broken. Give it a minute.
+          </p>
         </div>
         <nav aria-label="Footer" className="flex gap-6 font-display text-lg font-semibold uppercase tracking-wide md:flex-col md:gap-2 md:text-right">
           <Link href="/" className="hover:text-turf">
@@ -25,7 +28,7 @@ export function SiteFooter() {
           <Link href="/about" className="hover:text-turf">
             How it works
           </Link>
-          <a href="https://github.com/vishnu-k-dev/touchline-ai" target="_blank" rel="noreferrer" className="hover:text-turf">
+          <a href="https://github.com/vishnu-k-dev/Touch-Line" target="_blank" rel="noreferrer" className="hover:text-turf">
             Source code
           </a>
         </nav>

@@ -1,0 +1,35 @@
+# Render blueprint: the API and its Postgres (with pgvector). The web app deploys to Vercel (docs/deployment.md).
+# Render > New > Blueprint > pick this repository. You will be asked for the secrets marked `sync: false`.
+databases:
+  - name: touchline-db
+    plan: 0.1c-256mb # pgvector is supported on Postgres 13+; the API runs CREATE EXTENSION vector itself
+    ipAllowList: [] # private: only services in the same Render region can connect
+
+services:
+  - type: web
+    name: touchline-api
+    runtime: docker
+    dockerfilePath: ./apps/api/Dockerfile
+    dockerContext: .
+    plan: 1c-2g # measured 345 MiB resident with the embedding model loaded: too close to a 512 MB plan
+    healthCheckPath: /health/ready
+    autoDeployTrigger: commit
+    envVars:
+      - key: DATABASE_URL # postgresql://... is rewritten to postgresql+psycopg:// by the API
+        fromDatabase:
+          name: touchline-db
+          property: connectionString
+      - key: LLM_PROVIDER
+        value: openai
+      - key: LLM_MODEL
+        value: gpt-5.6-luna
+      - key: LLM_API_KEY # your OpenAI key
+        sync: false
+      - key: CORS_ORIGINS # the Vercel URL, e.g. https://touchline-ai.vercel.app (comma-separate several)
+        sync: false
+      - key: CORS_ORIGIN_REGEX # optional: Vercel preview deploys, e.g. https://touchline-ai-.*[.]vercel[.]app
+        sync: false
+      - key: TRUST_PROXY
+        value: "true"
+      - key: ANALYST_DAILY_BUDGET_USD
+        value: "5"
